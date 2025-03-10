@@ -109,15 +109,87 @@ export function MessageList({ messages = [], streamingMessage }: MessageListProp
     });
   };
 
+  // Add wheel event handler to the container to allow scrolling anywhere in the chat
+  useEffect(() => {
+    const currentContainer = containerRef.current;
+    if (!currentContainer) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Prevent default to ensure we handle scrolling
+      e.preventDefault();
+      
+      // Calculate new scroll position
+      const newScrollTop = currentContainer.scrollTop + e.deltaY;
+      
+      // Apply the scroll
+      currentContainer.scrollTo({
+        top: newScrollTop,
+        behavior: 'auto' // Use auto for wheel events for responsive feel
+      });
+    };
+
+    // Attach the wheel event listener with passive: false to allow preventDefault
+    currentContainer.addEventListener('wheel', handleWheel, { passive: false });
+    
+    return () => {
+      currentContainer.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
+  // Handle touch events for mobile scrolling
+  useEffect(() => {
+    const currentContainer = containerRef.current;
+    if (!currentContainer || !isMobile) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let isScrolling = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      currentY = startY;
+      isScrolling = true;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isScrolling) return;
+      
+      const deltaY = currentY - e.touches[0].clientY;
+      currentY = e.touches[0].clientY;
+      
+      // Scroll the container
+      currentContainer.scrollTop += deltaY;
+      
+      // Prevent default only if we're scrolling to avoid blocking other touch events
+      if (Math.abs(deltaY) > 5) {
+        e.preventDefault();
+      }
+    };
+
+    const handleTouchEnd = () => {
+      isScrolling = false;
+    };
+
+    currentContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+    currentContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    currentContainer.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      currentContainer.removeEventListener('touchstart', handleTouchStart);
+      currentContainer.removeEventListener('touchmove', handleTouchMove);
+      currentContainer.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isMobile]);
+
   return (
     <>
       <div 
         ref={containerRef}
-        className="flex-1 overflow-y-auto py-4 space-y-3 custom-scrollbar w-full"
+        className="flex-1 overflow-y-auto py-4 space-y-3 invisible-scrollbar w-full"
         style={{
-          height: isMobile ? 'calc(100vh - 140px)' : 'calc(100vh - 240px)',
+          height: isMobile ? 'calc(100vh - 150px)' : 'calc(100vh - 240px)',
           overscrollBehavior: 'contain',
-          paddingBottom: isMobile ? '1rem' : '5rem',
+          paddingBottom: isMobile ? '4rem' : '5rem',
           WebkitOverflowScrolling: 'touch', // Better scrolling on iOS
         }}
       >
