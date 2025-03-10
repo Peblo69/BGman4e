@@ -240,7 +240,7 @@ export function ChatInput({ onSend }: { onSend: (message: string, images?: Image
           onKeyDown={handleKeyDown}
           placeholder={isProcessing ? "Обработва се изображение..." : "Здравейте! С какво мога да ви помогна днес?"}
           className={cn(
-            "chat-input scrollbar-custom text-left text-base bg-black/70 w-full",
+            "chat-input invisible-scrollbar text-left text-base bg-black/70 w-full",
             isProcessing && "opacity-70",
             isMobile ? "min-h-[56px] max-h-[160px] py-4" : "min-h-[70px] max-h-[200px]"
           )}
