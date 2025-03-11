@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useFirebaseAuth } from '../lib/firebase-auth-context';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
-import './authmodal.css';
+import './src/authmodal.css';
 
 export function LoginModal() {
   const [isOpen, setIsOpen] = useState(false);
