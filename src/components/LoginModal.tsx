@@ -173,6 +173,28 @@ export function LoginModal() {
                     className="space-y-2"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <label className="text-sm text-gray-400">Имейл</label>
+                    <div className="relative">
+                      <div className="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <Mail className="h-5 w-5 text-gray-500" />
+                      </div>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="bg-black/50 border-gray-800 pl-10 py-2 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 transition-all"
+                        required
+                      />
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
                     <div className="flex justify-between">
@@ -303,26 +325,4 @@ export function LoginModal() {
       />
     </>
   );
-}}}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <label className="text-sm text-gray-400">Имейл</label>
-                    <div className="relative">
-                      <div className="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <Mail className="h-5 w-5 text-gray-500" />
-                      </div>
-                      <Input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        className="bg-black/50 border-gray-800 pl-10 py-2 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 transition-all"
-                        required
-                      />
-                    </div>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="space-y-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0
+}
