@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Image as ImageIcon, X } from 'lucide-react';
+import { Send, Image as ImageIcon, X, Plus, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { cn } from '../../lib/utils';
@@ -12,6 +12,7 @@ export function ChatInput({ onSend }: { onSend: (message: string, images?: Image
   const [images, setImages] = useState<ImageAttachment[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | undefined>();
+  const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropAreaRef = useRef<HTMLDivElement>(null);
@@ -135,19 +136,19 @@ export function ChatInput({ onSend }: { onSend: (message: string, images?: Image
     const handleDragOver = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      dropArea.classList.add('bg-purple-500/10');
+      dropArea.classList.add('bg-purple-500/20');
     };
 
     const handleDragLeave = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      dropArea.classList.remove('bg-purple-500/10');
+      dropArea.classList.remove('bg-purple-500/20');
     };
 
     const handleDrop = async (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      dropArea.classList.remove('bg-purple-500/10');
+      dropArea.classList.remove('bg-purple-500/20');
 
       if (!e.dataTransfer?.files || e.dataTransfer.files.length === 0) return;
 
@@ -166,6 +167,9 @@ export function ChatInput({ onSend }: { onSend: (message: string, images?: Image
   }, []);
 
   const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+
+  // Create an array of particles for animation
+  const particles = Array.from({ length: 15 }, (_, i) => i);
 
   return ( 
     <form onSubmit={handleSubmit} className="sticky bottom-0 p-3 md:p-6 backdrop-blur-xl mt-auto z-40 w-full">
@@ -188,20 +192,34 @@ export function ChatInput({ onSend }: { onSend: (message: string, images?: Image
             className="flex flex-wrap gap-2 mb-3"
           >
             {images.map(img => (
-              <div key={img.id} className="relative inline-block">
-                <img 
-                  src={img.thumbnailUrl || img.url} 
-                  alt={img.filename}
-                  className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-md border border-purple-500/30"
-                />
-                <button
+              <motion.div 
+                key={img.id} 
+                className="relative inline-block"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={img.thumbnailUrl || img.url} 
+                    alt={img.filename}
+                    className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-md border border-purple-500/50"
+                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-70" />
+                </div>
+                <motion.button
                   type="button"
                   onClick={() => handleRemoveImage(img.id)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg"
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   <X className="w-3 h-3" />
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             ))}
           </motion.div>
         )}
@@ -214,68 +232,160 @@ export function ChatInput({ onSend }: { onSend: (message: string, images?: Image
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-red-500/10 text-red-400 text-sm rounded-md p-2 mb-3"
+            className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-md p-2 mb-3"
           >
-            {error}
+            <div className="flex items-center">
+              <Sparkles className="w-4 h-4 mr-2 text-red-400" />
+              {error}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
       
       <div className="chat-input-container relative" ref={dropAreaRef}>
-        <div className="chat-input-glow animate-pulse-slow" />
-        <div className="chat-input-bg" />
+        {/* Background glow effect */}
+        <motion.div 
+          className="chat-input-glow"
+          animate={{ 
+            opacity: [0.4, 0.7, 0.4],
+            background: [
+              'linear-gradient(90deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 50%, rgba(139, 92, 246, 0.3) 100%)',
+              'linear-gradient(90deg, rgba(139, 92, 246, 0.5) 0%, rgba(236, 72, 153, 0.5) 50%, rgba(139, 92, 246, 0.5) 100%)',
+              'linear-gradient(90deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 50%, rgba(139, 92, 246, 0.3) 100%)'
+            ]
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity,
+            ease: "easeInOut" 
+          }}
+        />
         
-        {/* Image button position fixed for all devices */}
-        <div className="absolute left-3 inset-y-0 flex items-center z-20">
-          <ImageIcon 
-            onClick={handleImageButtonClick}
-            className="h-5 w-5 text-purple-400 hover:text-purple-300 cursor-pointer"
-          />
+        {/* Enhanced background with subtle pattern */}
+        <div className="chat-input-bg relative overflow-hidden">
+          {/* Animated particles for visual interest */}
+          <AnimatePresence>
+            {isFocused && particles.map((index) => (
+              <motion.div
+                key={`particle-${index}`}
+                className="absolute w-1 h-1 rounded-full bg-purple-500/60"
+                initial={{ 
+                  opacity: 0,
+                  x: Math.random() * 100 - 50 + "%",
+                  y: Math.random() * 100 - 50 + "%",
+                  scale: 0
+                }}
+                animate={{ 
+                  opacity: [0, 0.6, 0],
+                  y: [null, Math.random() * -50 - 10],
+                  scale: [0, Math.random() * 1.5 + 0.5, 0]
+                }}
+                transition={{ 
+                  duration: Math.random() * 2 + 1,
+                  repeat: Infinity,
+                  repeatDelay: Math.random() * 2,
+                  ease: "easeOut"
+                }}
+                style={{
+                  left: `${Math.random() * 100}%`
+                }}
+              />
+            ))}
+          </AnimatePresence>
         </div>
+        
+        {/* Image button with enhanced animation */}
+        <motion.div 
+          className="absolute left-3 inset-y-0 flex items-center z-20"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <motion.div
+            whileHover={{ rotate: [0, -10, 10, -5, 5, 0] }}
+            transition={{ duration: 0.5 }}
+          >
+            <ImageIcon 
+              onClick={handleImageButtonClick}
+              className="h-5 w-5 text-purple-400 hover:text-purple-300 cursor-pointer"
+            />
+          </motion.div>
+        </motion.div>
         
         <Textarea
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder={isProcessing ? "Обработва се изображение..." : "Здравейте! С какво мога да ви помогна днес?"}
           className={cn(
             "chat-input invisible-scrollbar text-left text-base bg-black/70 w-full",
             isProcessing && "opacity-70",
-            isMobile ? "min-h-[56px] max-h-[160px] py-4" : "min-h-[70px] max-h-[200px]"
+            isMobile ? "min-h-[56px] max-h-[160px] py-4" : "min-h-[70px] max-h-[200px]",
+            isFocused ? "shadow-[0_0_15px_rgba(139,92,246,0.4)]" : ""
           )}
           style={{
             paddingLeft: '40px',
-            paddingRight: '40px'
+            paddingRight: '40px',
+            transition: 'all 0.3s ease'
           }}
           disabled={isProcessing}
         />
         
-        {/* Send button position fixed for all devices */}
+        {/* Send button with enhanced animation */}
         <div className="absolute right-3 inset-y-0 flex items-center z-20">
-          <Send 
-            onClick={handleSubmit}
-            className={cn(
-              "h-5 w-5 text-purple-400 hover:text-purple-300 cursor-pointer",
-              (isProcessing || (message.trim() === '' && images.length === 0)) && "opacity-50 cursor-not-allowed"
-            )}
-          />
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9, rotate: -5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <Send 
+              onClick={handleSubmit}
+              className={cn(
+                "h-5 w-5 text-purple-400 hover:text-purple-300 cursor-pointer",
+                (isProcessing || (message.trim() === '' && images.length === 0)) && "opacity-50 cursor-not-allowed"
+              )}
+            />
+          </motion.div>
         </div>
         
         {/* Processing indicator */}
-        {isProcessing && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl z-10">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full border-2 border-purple-500 border-t-transparent animate-spin"></div>
-              <span className="text-white text-sm">Обработка на изображение...</span>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {isProcessing && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-xl z-10"
+            >
+              <div className="flex items-center space-x-2">
+                <motion.div 
+                  className="w-4 h-4 rounded-full border-2 border-purple-500 border-t-transparent"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.span 
+                  className="text-white text-sm"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  Обработка на изображение...
+                </motion.span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
-      <div className="mt-2 text-xs text-center text-muted-foreground">
+      <motion.div 
+        className="mt-2 text-xs text-center text-muted-foreground"
+        initial={{ opacity: 0.7 }}
+        animate={{ opacity: [0.7, 0.9, 0.7] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      >
         BulgarGPT може да допуска грешки.
-      </div>
+      </motion.div>
     </form>
   );
 }
