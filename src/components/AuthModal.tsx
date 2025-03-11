@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useFirebaseAuth } from '../lib/firebase-auth-context';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
-import '../types/authmodal.css';
+import '../authmodal.css';
 
 type AuthModalProps = {
   isOpen: boolean;
