@@ -1,4 +1,4 @@
-import { collection, query, where, orderBy, getDocs, addDoc, updateDoc, doc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, addDoc, updateDoc, setDoc, doc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
 import { firestore } from './firebase';
 import { Message } from '../types/chat';
 
@@ -63,8 +63,8 @@ export async function createOrUpdateUserProfile(userProfile: Partial<UserProfile
       });
       return userProfile.userId;
     } else {
-      // Create new profile
-      await updateDoc(userDocRef, {
+      // Create new profile with setDoc instead of updateDoc
+      await setDoc(userDocRef, {
         ...userProfile,
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp(),
